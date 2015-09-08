@@ -59,3 +59,50 @@
 			</div>
 		</div>
 	{/if}
+
+//NUM 5
+//service locator FTW
+
+//in component
+
+	public function createComponentLoginForm() {
+		/** @var \GettextTranslator\Gettext  */
+		$translator = $this->presenter->translator;
+		/** @var \EFF\Profile $profile */
+		$profile = $this->presenter->profileFactory->create( $this->presenter->user->getId() );
+		$form = new Form();
+		$form->setTranslator( $translator );
+
+		if (! $this->presenter->user->getId() ) {
+			$username = '';
+		} else {
+			$username = $this->presenter->user->getIdentity()->data['username'];
+		}
+
+		$form->addText('username')
+			->setDisabled()
+			->setValue( $username );
+
+		//if ($profile->getParam('fbid') == '') {
+			$form->addPassword('password');
+			$form->addPassword('passwordcheck');
+		//}
+
+		$btn = $form->addButton('send', 'Uložit')->getControlPrototype();
+		$btn->addAttributes(array('class'=>'btn btn-success btn-large','data-loading-text'=>'Ukládám'));
+		$btn->type = 'submit';
+
+		$btn->create('span')
+			->add(\Nette\Utils\Html::el()
+				->create('span', $this->presenter->translator->translate('Uložit')));
+
+		$form->onValidate[] = callback( $this, 'validateLoginForm' );
+		$form->onError[] = callback( $this, 'errorForm' );
+		$form->onSuccess[] = callback( $this, 'successLoginForm' );
+
+		if ($this->presenter->isAjax()) {
+			$this->invalidateControl( );
+		}
+
+		return $form;
+	}
