@@ -1,4 +1,4 @@
-//because filtering in database is too mainstream
+//in model, eventManager: because filtering in database is too mainstream
 
     /**
      * @return array
@@ -15,3 +15,18 @@
 
         return $newestEvents;
     }
+
+
+//in basePresenter
+	public function createComponent($name) {
+		if ( $name !== 'frame' ) {
+			$name = '\\EFF\\Components\\'.$name;
+			if (class_exists($name)) {
+				return new $name;
+			} else {
+				return parent::createComponent($name);
+			}
+		} else {
+			return $this->createComponentFrame();
+		}
+	}
